@@ -16,6 +16,8 @@ permissions:
 jobs:
   jpackage:
     name: '${{ matrix.job.jdkOs }}'
+    # @mhoffrog: Not on this fork
+    if: github.repository == 'jreleaser/jreleaser'
     strategy:
       fail-fast: false
       matrix:

@@ -5,10 +5,14 @@ on:
     - cron: '0 3 * * *'
   workflow_dispatch:
 
+permissions:
+  actions: write
+
 jobs:
   clear:
     name: Delete all caches
     runs-on: ubuntu-latest
     steps:
       - name: Clear caches
-        uses: easimon/wipe-cache@e7ab82e64c328fd39c2e96933d426cd72ac2beba
+        #uses: easimon/wipe-cache@e7ab82e64c328fd39c2e96933d426cd72ac2beba
+        uses: GHCICD/wipe-cache@v2

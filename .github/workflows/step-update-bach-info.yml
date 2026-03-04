@@ -21,6 +21,8 @@ permissions:
 jobs:
   update-bach-info:
     name: Update bach-info
+    # @mhoffrog: Not on this fork
+    if: github.repository == 'jreleaser/jreleaser'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

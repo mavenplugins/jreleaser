@@ -11,6 +11,8 @@ permissions:
 jobs:
   precheck:
     name: Precheck
+    # @mhoffrog: Not on this fork
+    if: github.repository == 'jreleaser/jreleaser'
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
