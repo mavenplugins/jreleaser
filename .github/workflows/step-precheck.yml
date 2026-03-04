@@ -13,7 +13,8 @@ permissions:
 jobs:
   precheck:
     name: Precheck
-    if: github.repository == 'jreleaser/jreleaser' && startsWith(github.event.head_commit.message, 'Releasing version') != true
+    #if: github.repository == 'jreleaser/jreleaser' && startsWith(github.event.head_commit.message, 'Releasing version') != true
+    if: github.repository == 'mavenplugins/jreleaser' && startsWith(github.event.head_commit.message, 'Releasing version') != true
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.vars.outputs.VERSION }}
@@ -22,7 +23,8 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Cancel previous run
-        uses: styfle/cancel-workflow-action@0.12.1
+        #uses: styfle/cancel-workflow-action@0.12.1
+        uses: GHCICD/cancel-workflow-action@0.12.1
         with:
           access_token: ${{ secrets.GITHUB_TOKEN }}
 

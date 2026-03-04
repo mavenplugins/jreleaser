@@ -25,6 +25,8 @@ permissions:
 jobs:
   update-wiki:
     name: 'Update wiki for Release ${{ inputs.project-tag }}'
+    # @mhoffrog: Not on this fork
+    if: github.repository == 'jreleaser/jreleaser'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

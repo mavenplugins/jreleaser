@@ -15,6 +15,8 @@ permissions: read-all
 jobs:
   precheck:
     name: Precheck
+    # @mhoffrog: Not on this fork
+    if: github.repository == 'jreleaser/jreleaser'
     uses: jreleaser/jreleaser/.github/workflows/step-precheck.yml@main
     secrets: inherit
 

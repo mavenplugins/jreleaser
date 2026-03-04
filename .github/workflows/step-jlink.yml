@@ -18,6 +18,8 @@ permissions:
 jobs:
   jlink:
     name: Jlink
+    # @mhoffrog: Not on this fork
+    if: github.repository == 'jreleaser/jreleaser'
     runs-on: ubuntu-latest
     env:
       CI: true

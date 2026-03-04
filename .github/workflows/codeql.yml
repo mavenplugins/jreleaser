@@ -3,9 +3,11 @@ name: CodeQL
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    #branches: [main]
+    branches: [main_mavenplugins]
   pull_request:
-    branches: [main]
+    #branches: [main]
+    branches: [main_mavenplugins]
 
 permissions:
   security-events: write
@@ -15,7 +17,8 @@ permissions:
 jobs:
   precheck:
     name: Precheck
-    uses: jreleaser/jreleaser/.github/workflows/step-precheck.yml@main
+    #uses: jreleaser/jreleaser/.github/workflows/step-precheck.yml@main
+    uses: mavenplugins/jreleaser/.github/workflows/step-precheck.yml@main_mavenplugins
     secrets: inherit
 
   codeql:
@@ -28,7 +31,8 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Cancel previous run
-        uses: styfle/cancel-workflow-action@0.12.1
+        #uses: styfle/cancel-workflow-action@0.12.1
+        uses: GHCICD/cancel-workflow-action@0.12.1
         with:
           access_token: ${{ secrets.GITHUB_TOKEN }}
 
