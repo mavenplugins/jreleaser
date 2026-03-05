@@ -4,6 +4,45 @@ on:
   push:
     branches: [ main ]
 
+  workflow_dispatch:
+    inputs:
+      build-cli:
+        description: 'Run build-cli job'
+        type: boolean
+        default: 'false'
+      build-tool:
+        description: 'Run build-cli job'
+        type: boolean
+        default: 'false'
+      build-ant:
+        description: 'Run build-ant job'
+        type: boolean
+        default: 'false'
+      build-gradle:
+        description: 'Run build-gradle job'
+        type: boolean
+        default: 'false'
+      build-maven:
+        description: 'Run build-maven job'
+        type: boolean
+        default: 'false'
+      unit-tests:
+        description: 'Run unit-tests job'
+        type: boolean
+        default: 'false'
+      coveralls:
+        description: 'Run coveralls job'
+        type: boolean
+        default: 'false'
+      codecov:
+        description: 'Run codecov job'
+        type: boolean
+        default: 'false'
+      sonar:
+        description: 'Run sonar job'
+        type: boolean
+        default: 'false'
+
 env:
   CI: true
   GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
@@ -21,7 +60,9 @@ jobs:
   build-cli:
     name: 'CLI ${{ matrix.job.os }}'
     needs: [ precheck ]
-    if: ${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}
+    if: ${{    endsWith(needs.precheck.outputs.version, '-SNAPSHOT')
+            && (github.event_name != 'workflow_dispatch' || github.event.inputs.build-cli == 'true')
+         }}
     continue-on-error: true
     strategy:
       fail-fast: false
@@ -201,7 +242,9 @@ jobs:
   build-tool:
     name: 'Tool ${{ matrix.job.os }}'
     needs: [ precheck ]
-    if: ${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}
+    if: ${{    endsWith(needs.precheck.outputs.version, '-SNAPSHOT')
+            && (github.event_name != 'workflow_dispatch' || github.event.inputs.build-tool == 'true')
+         }}
     continue-on-error: true
     strategy:
       fail-fast: false
@@ -381,7 +424,9 @@ jobs:
   build-ant:
     name: 'Ant ${{ matrix.job.os }}'
     needs: [ precheck ]
-    if: ${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}
+    if: ${{    endsWith(needs.precheck.outputs.version, '-SNAPSHOT')
+            && (github.event_name != 'workflow_dispatch' || github.event.inputs.build-ant == 'true')
+         }}
     continue-on-error: true
     strategy:
       fail-fast: false
@@ -559,7 +604,9 @@ jobs:
   build-gradle:
     name: 'Gradle ${{ matrix.job.os }}'
     needs: [ precheck ]
-    if: ${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}
+    if: ${{    endsWith(needs.precheck.outputs.version, '-SNAPSHOT')
+            && (github.event_name != 'workflow_dispatch' || github.event.inputs.build-gradle == 'true')
+         }}
     continue-on-error: true
     strategy:
       fail-fast: false
@@ -749,7 +796,9 @@ jobs:
   build-maven:
     name: 'Maven ${{ matrix.job.os }}'
     needs: [ precheck ]
-    if: ${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}
+    if: ${{    endsWith(needs.precheck.outputs.version, '-SNAPSHOT')
+            && (github.event_name != 'workflow_dispatch' || github.event.inputs.build-maven == 'true')
+        }}
     continue-on-error: true
     strategy:
       fail-fast: false
@@ -928,7 +977,9 @@ jobs:
   unit-tests:
     name: 'Unit Test ${{ matrix.os }}'
     needs: [ precheck ]
-    if: ${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}
+    if: ${{    endsWith(needs.precheck.outputs.version, '-SNAPSHOT')
+            && (github.event_name != 'workflow_dispatch' || github.event.inputs.unit-tests == 'true')
+         }}
     continue-on-error: true
     strategy:
       fail-fast: true
@@ -988,7 +1039,9 @@ jobs:
   coveralls:
     name: Coveralls
     needs: [ precheck, build-cli, build-tool, build-ant, build-gradle, build-maven, unit-tests ]
-    if: ${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}
+    if: ${{    endsWith(needs.precheck.outputs.version, '-SNAPSHOT')
+            && (github.event_name != 'workflow_dispatch' || github.event.inputs.coveralls == 'true')
+         }}
     continue-on-error: true
     runs-on: ubuntu-latest
     steps:
@@ -1040,7 +1093,9 @@ jobs:
   codecov:
     name: Codecov
     needs: [ precheck, build-cli, build-tool, build-ant, build-gradle, build-maven, unit-tests ]
-    if: ${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}
+    if: ${{    endsWith(needs.precheck.outputs.version, '-SNAPSHOT')
+            && (github.event_name != 'workflow_dispatch' || github.event.inputs.codecov == 'true')
+         }}
     continue-on-error: true
     runs-on: ubuntu-latest
     steps:
@@ -1097,7 +1152,9 @@ jobs:
   sonar:
     name: Sonar
     needs: [ precheck, build-cli, build-tool, build-ant, build-gradle, build-maven, unit-tests ]
-    if: ${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}
+    if: ${{    endsWith(needs.precheck.outputs.version, '-SNAPSHOT')
+            && (github.event_name != 'workflow_dispatch' || github.event.inputs.sonar == 'true')
+         }}
     continue-on-error: true
     runs-on: ubuntu-latest
     steps:
