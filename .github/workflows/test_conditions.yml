@@ -45,13 +45,15 @@ jobs:
           echo "github.event.inputs.run-step-20: '${{ github.event.inputs.run-step-20 }}'"
 
       - name: Step 10
-        if: ${{ github.event.inputs.run-step-10 == '' || github.event.inputs.run-step-10 == 'true' }}
+        if: ${{    github.event.inputs.run-step-10 == ''
+                || github.event.inputs.run-step-10 == 'true' }}
         shell: bash
         run: |
           echo "Run step 10 triggered by event: ${{ github.event_name }}"
 
       - name: Step 20
-        if: ${{ github.event.inputs.run-step-20 == '' || github.event.inputs.run-step-20 == 'true' }}
+        if: ${{    github.event.inputs.run-step-20 == ''
+                || github.event.inputs.run-step-20 == 'true' }}
         shell: bash
         run: |
           echo "Run step 20 triggered by event: ${{ github.event_name }}"
