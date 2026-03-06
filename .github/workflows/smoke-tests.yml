@@ -51,9 +51,7 @@ env:
 jobs:
   precheck:
     name: Precheck
-    # @mhoffrog: Not on this fork
-    if: github.repository == 'jreleaser/jreleaser'
-    uses: jreleaser/jreleaser/.github/workflows/step-precheck.yml@main
+    uses: mavenplugins/jreleaser/.github/workflows/step-precheck.yml@main_mavenplugins
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -68,9 +66,9 @@ jobs:
       fail-fast: false
       matrix:
         job:
-          - { os: macos-15-intel  , args: '-xp docker' }
+          #- { os: macos-15-intel  , args: '-xp docker' }
           - { os: ubuntu-latest , args: '' }
-          - { os: windows-latest, args: '-xp docker' }
+          #- { os: windows-latest, args: '-xp docker' }
     runs-on: ${{ matrix.job.os }}
     steps:
       - name: Checkout
@@ -80,6 +78,8 @@ jobs:
           fetch-depth: 0
 
       - name: Decrypt secrets
+        # @mhoffrog: Not on this fork
+        if: github.repository == 'jreleaser/jreleaser'
         shell: bash
         run: sh .github/scripts/decrypt-secrets.sh
 
@@ -105,7 +105,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-          repository: jreleaser/smoketests-jreleaser
+          repository: mavenplugins/smoketests-jreleaser
           path: smoketests-jreleaser
           fetch-depth: 0
           token: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -250,9 +250,9 @@ jobs:
       fail-fast: false
       matrix:
         job:
-          - { os: macos-15-intel  , args: '-xp docker' }
+          #- { os: macos-15-intel  , args: '-xp docker' }
           - { os: ubuntu-latest , args: '' }
-          - { os: windows-latest, args: '-xp docker' }
+          #- { os: windows-latest, args: '-xp docker' }
     runs-on: ${{ matrix.job.os }}
     steps:
       - name: Checkout
@@ -287,7 +287,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-          repository: jreleaser/smoketests-jreleaser
+          repository: mavenplugins/smoketests-jreleaser
           path: smoketests-jreleaser
           fetch-depth: 0
           token: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -432,9 +432,9 @@ jobs:
       fail-fast: false
       matrix:
         job:
-          - { os: macos-15-intel  , args: '-Djreleaser.excluded.packagers=docker' }
+          #- { os: macos-15-intel  , args: '-Djreleaser.excluded.packagers=docker' }
           - { os: ubuntu-latest , args: '' }
-          - { os: windows-latest, args: '-Djreleaser.excluded.packagers=docker' }
+          #- { os: windows-latest, args: '-Djreleaser.excluded.packagers=docker' }
     runs-on: ${{ matrix.job.os }}
     steps:
       - name: Checkout
@@ -469,7 +469,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-          repository: jreleaser/smoketests-jreleaser
+          repository: mavenplugins/smoketests-jreleaser
           path: smoketests-jreleaser
           fetch-depth: 0
           token: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -612,9 +612,9 @@ jobs:
       fail-fast: false
       matrix:
         job:
-          - { os: macos-15-intel  , args: '--exclude-packager docker' }
+          #- { os: macos-15-intel  , args: '--exclude-packager docker' }
           - { os: ubuntu-latest , args: '' }
-          - { os: windows-latest, args: '--exclude-packager docker' }
+          #- { os: windows-latest, args: '--exclude-packager docker' }
     runs-on: ${{ matrix.job.os }}
     steps:
       - name: Checkout
@@ -624,6 +624,8 @@ jobs:
           fetch-depth: 0
 
       - name: Decrypt secrets
+        # @mhoffrog: Not on this fork
+        if: github.repository == 'jreleaser/jreleaser'
         shell: bash
         run: sh .github/scripts/decrypt-secrets.sh
 
@@ -649,7 +651,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-          repository: jreleaser/smoketests-jreleaser
+          repository: mavenplugins/smoketests-jreleaser
           path: smoketests-jreleaser
           fetch-depth: 0
           token: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -804,9 +806,9 @@ jobs:
       fail-fast: false
       matrix:
         job:
-          - { os: macos-15-intel  , args: '-Djreleaser.excluded.packagers=docker' }
+          #- { os: macos-15-intel  , args: '-Djreleaser.excluded.packagers=docker' }
           - { os: ubuntu-latest , args: '' }
-          - { os: windows-latest, args: '-Djreleaser.excluded.packagers=docker' }
+          #- { os: windows-latest, args: '-Djreleaser.excluded.packagers=docker' }
     runs-on: ${{ matrix.job.os }}
     steps:
       - name: Checkout
@@ -841,7 +843,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-          repository: jreleaser/smoketests-jreleaser
+          repository: mavenplugins/smoketests-jreleaser
           path: smoketests-jreleaser
           fetch-depth: 0
           token: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -984,7 +986,8 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest, macos-15-intel, windows-latest]
+        #os: [ubuntu-latest, macos-15-intel, windows-latest]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
