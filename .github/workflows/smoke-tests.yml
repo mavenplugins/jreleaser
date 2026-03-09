@@ -684,7 +684,7 @@ jobs:
           ./gradlew jreleaserJsonSchema -S
           echo "::endgroup::"
           echo "::group::➡️ env"
-          ./gradlew jreleaserEnv -S
+          ./gradlew jreleaserEnv --logClasspath -S --warning-mode all
           echo "::endgroup::"
           echo "::group::➡️ assemble"
           ./gradlew jreleaserAssemble -PoutputDir=build -S
