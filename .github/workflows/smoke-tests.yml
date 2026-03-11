@@ -105,7 +105,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-          repository: mavenplugins/smoketests-jreleaser
+          repository: jrsmoketests/smoketests-jreleaser
           path: smoketests-jreleaser
           fetch-depth: 0
           token: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -287,7 +287,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-          repository: mavenplugins/smoketests-jreleaser
+          repository: jrsmoketests/smoketests-jreleaser
           path: smoketests-jreleaser
           fetch-depth: 0
           token: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -469,7 +469,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-          repository: mavenplugins/smoketests-jreleaser
+          repository: jrsmoketests/smoketests-jreleaser
           path: smoketests-jreleaser
           fetch-depth: 0
           token: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -651,7 +651,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-          repository: mavenplugins/smoketests-jreleaser
+          repository: jrsmoketests/smoketests-jreleaser
           path: smoketests-jreleaser
           fetch-depth: 0
           token: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -684,7 +684,7 @@ jobs:
           ./gradlew jreleaserJsonSchema -S
           echo "::endgroup::"
           echo "::group::➡️ env"
-          ./gradlew jreleaserEnv --logClasspath -S --warning-mode all
+          ./gradlew jreleaserEnv --warning-mode all --logClasspath -S
           echo "::endgroup::"
           echo "::group::➡️ assemble"
           ./gradlew jreleaserAssemble -PoutputDir=build -S
@@ -843,7 +843,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-          repository: mavenplugins/smoketests-jreleaser
+          repository: jrsmoketests/smoketests-jreleaser
           path: smoketests-jreleaser
           fetch-depth: 0
           token: ${{ secrets.GIT_ACCESS_TOKEN }}
