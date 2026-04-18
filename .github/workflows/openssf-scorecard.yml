@@ -6,7 +6,8 @@ on:
     # Weekly on Saturdays.
     - cron: '30 1 * * 6'
   push:
-    branches: [ main ]
+    #branches: [main]
+    branches: [main_mavenplugins]
   workflow_dispatch:
 
 # Declare default permissions as read only.
@@ -15,9 +16,8 @@ permissions: read-all
 jobs:
   precheck:
     name: Precheck
-    # @mhoffrog: Not on this fork
-    if: github.repository == 'jreleaser/jreleaser'
-    uses: jreleaser/jreleaser/.github/workflows/step-precheck.yml@main
+    #uses: jreleaser/jreleaser/.github/workflows/step-precheck.yml@main
+    uses: mavenplugins/jreleaser/.github/workflows/step-precheck.yml@main_mavenplugins
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
 
