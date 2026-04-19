@@ -61,4 +61,6 @@ afterEvaluate {
     if (publishTask && publishPluginJar) publishTask.dependsOn(publishPluginJar)
     publishTask = tasks.findByName('publishMainPublicationToLocalReleaseRepository')
     if (publishTask && publishPluginJar) publishTask.dependsOn(publishPluginJar)
+    publishTask = tasks.findByName('publishMainPublicationToMavenCentralSnapshotsRepository')
+    if (publishTask && publishPluginJar) publishTask.dependsOn(publishPluginJar)
 }

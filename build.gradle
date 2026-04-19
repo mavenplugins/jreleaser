@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-boolean qualityEnabled    = (project.rootProject.findProperty('qualityEnabled') ?: false).toBoolean()
-boolean sonarEnabled      = qualityEnabled || (project.rootProject.findProperty('sonarEnabled') ?: false).toBoolean()
-boolean spotbugsEnabled   = qualityEnabled || (project.rootProject.findProperty('spotbugsEnabled') ?: false).toBoolean()
+boolean qualityEnabled = (project.rootProject.findProperty('qualityEnabled') ?: false).toBoolean()
+boolean sonarEnabled = qualityEnabled || (project.rootProject.findProperty('sonarEnabled') ?: false).toBoolean()
+boolean spotbugsEnabled = qualityEnabled || (project.rootProject.findProperty('spotbugsEnabled') ?: false).toBoolean()
 boolean errorproneEnabled = qualityEnabled || (project.rootProject.findProperty('errorproneEnabled') ?: false).toBoolean()
 
 config {
@@ -27,14 +27,14 @@ config {
         tags = ['release']
 
         links {
-            website      = "https://github.com/jreleaser/${project.rootProject.name}"
+            website = "https://github.com/jreleaser/${project.rootProject.name}"
             issueTracker = "https://github.com/jreleaser/${project.rootProject.name}/issues"
-            scm          = "https://github.com/jreleaser/${project.rootProject.name}.git"
+            scm = "https://github.com/jreleaser/${project.rootProject.name}.git"
         }
 
         scm {
-            url                 = "https://github.com/jreleaser/${project.rootProject.name}"
-            connection          = "scm:git:https://github.com/jreleaser/${project.rootProject.name}.git"
+            url = "https://github.com/jreleaser/${project.rootProject.name}"
+            connection = "scm:git:https://github.com/jreleaser/${project.rootProject.name}.git"
             developerConnection = "scm:git:git@github.com:jreleaser/${project.rootProject.name}.git"
         }
 
@@ -149,6 +149,93 @@ subprojects {
     test {
         useJUnitPlatform()
     }
+
+    beforeEvaluate {
+        if (it.hasProperty('pluginId')) {
+            String originalPluginId = it.pluginId.toString()
+            if (!originalPluginId.startsWith(it.group)) {
+                it.pluginId = "${it.group}.${originalPluginId.replace('org.', '')}"
+                it.logger.lifecycle("> ###### Plugin project '{}': Updated pluginId from '{}' to '{}'", it.name, originalPluginId, it.pluginId)
+            }
+        }
+    }
+
+    publishing {
+        // Enhance all publications with metadata for Maven Central
+        // (e.g. pluginMaven, <pluginDescriptorName>PluginMarkerMaven, and any custom publications)
+        // Note: afterEvaluate is necessary since java-gradle-plugin creates its publications in an afterEvaluate callback
+        afterEvaluate {
+            String sourcePublicationName = 'main'
+            MavenPublication sourcePublication = publications.withType(MavenPublication).findByName(sourcePublicationName)
+            if (sourcePublication == null) {
+                return // no publication to copy metadata from -> skip
+            }
+            publications.withType(MavenPublication) {
+                // Enhance/update metadata to PluginMarkerMaven publications created by java-gradle-plugin)
+                // Those are not yet propagated by kordamp PluginPlugin.
+                if (it.name.endsWith('PluginMarkerMaven')) {
+                    if (!pom.url.isPresent()) {
+                        project.logger.lifecycle("> ###### Add url to pom of publication {} ...", it.name)
+                        pom.url = sourcePublication.pom.url.getOrNull()
+                    }
+                    if (!pom.inceptionYear.isPresent()) {
+                        project.logger.lifecycle("> ###### Add inceptionYear to pom of publication {} ...", it.name)
+                        pom.inceptionYear = sourcePublication.pom.inceptionYear.getOrNull()
+                    }
+                    if (pom.getLicenses().isEmpty()) {
+                        project.logger.lifecycle("> ###### Add licenses to pom of publication {} ...", it.name)
+                        sourcePublication.pom.getLicenses().each { mainLicense ->
+                            pom.licenses {
+                                license {
+                                    name = mainLicense.name
+                                    url = mainLicense.url
+                                    distribution = mainLicense.distribution
+                                }
+                            }
+                        }
+                    }
+                    if (pom.getDevelopers().isEmpty()) {
+                        project.logger.lifecycle("> ###### Add developers to pom of publication {} ...", it.name)
+                        sourcePublication.pom.developers.each { mainDeveloper ->
+                            pom.developers {
+                                developer {
+                                    id = mainDeveloper.id
+                                    name = mainDeveloper.name
+                                    email = mainDeveloper.email
+                                    roles = mainDeveloper.roles
+                                }
+                            }
+                        }
+                    }
+                    if (pom.getScm() == null) {
+                        project.logger.lifecycle("> ###### Add scm to pom of publication {} ...", it.name)
+                        pom.scm {
+                            url = sourcePublication.pom.scm.url.getOrNull()
+                            connection = sourcePublication.pom.scm.connection.getOrNull()
+                            developerConnection = sourcePublication.pom.scm.developerConnection.getOrNull()
+                        }
+                    }
+                }
+            } // end of withType(MavenPublication)
+        } // end of afterEvaluate
+        boolean isSnapshotVersion = project.version.endsWith('-SNAPSHOT')
+        repositories {
+            if (isSnapshotVersion
+                && System.getenv('JRELEASER_MAVENCENTRAL_USERNAME')
+                && (System.getenv('JRELEASER_MAVENCENTRAL_PASSWORD') || System.getenv('JRELEASER_MAVENCENTRAL_TOKEN'))) {
+                project.logger.lifecycle("> ###### Adding Maven Central Snapshots publishing repository for project '{}'.", project.name)
+                maven {
+                    name = 'MavenCentralSnapshots'
+                    url = 'https://central.sonatype.com/repository/maven-snapshots/'
+                    credentials {
+                        username = System.getenv('JRELEASER_MAVENCENTRAL_USERNAME') ?: 'unknown'
+                        password = System.getenv('JRELEASER_MAVENCENTRAL_PASSWORD') ?: System.getenv('JRELEASER_MAVENCENTRAL_TOKEN') ?: 'unknown'
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 subprojects { p ->
@@ -188,7 +275,7 @@ profiles {
     profile('sbom') {
         activation {
             property {
-                key   = 'sbom'
+                key = 'sbom'
                 value = true
             }
         }
@@ -200,7 +287,7 @@ profiles {
                     dirs(['api', 'core', 'sdks', 'plugins']) {
                         cyclonedxBom {
                             includeConfigs = ['runtimeClasspath']
-                            projectType = project.projectDir.absolutePath.contains('plugins')? 'application' : 'library'
+                            projectType = project.projectDir.absolutePath.contains('plugins') ? 'application' : 'library'
                             outputName = "${project.name}-${project.version}-cyclonedx".toString()
                             destination = file('build/reports/cyclonedx')
                             includeLicenseText = false
