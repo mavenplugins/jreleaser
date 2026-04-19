@@ -133,4 +133,6 @@ afterEvaluate {
     if (publishTask && shadowJar) publishTask.dependsOn(shadowJar)
     publishTask = tasks.findByName('publishMainPublicationToLocalReleaseRepository')
     if (publishTask && shadowJar) publishTask.dependsOn(shadowJar)
+    publishTask = tasks.findByName('publishMainPublicationToMavenCentralSnapshotsRepository')
+    if (publishTask && shadowJar) publishTask.dependsOn(shadowJar)
 }
