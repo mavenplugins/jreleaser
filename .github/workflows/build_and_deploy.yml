@@ -1,0 +1,155 @@
+name: Build and Deploy SNAPSHOT
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main_mavenplugins", "preview", "feature/**" ]
+
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+
+env:
+  groupId: io.github.mavenplugins.gradle
+
+jobs:
+  build:
+    name: Build and Deploy
+    # Run on this repo only
+    if: github.repository == 'mavenplugins/jreleaser'
+    strategy:
+      fail-fast: false
+      matrix:
+        # @mhoffrog - ubuntu-latest only on this fork
+        #os: [ubuntu-latest, macos-15-intel, windows-latest]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Determine project version
+        id: version
+        shell: bash
+        run: |
+          # Current git commit hash
+          SHA=${{ github.sha }}
+          # Take first 7 digits as short sha
+          SHA_SHORT=${SHA::7}
+          # Extract the version from VERSION, removing any trailing whitespace
+          PROJECT_VERSION=$(sed -n 's/^ *\([a-zA-Z0-9.-]*\) *$/\1/p' VERSION)
+          if [[ "${PROJECT_VERSION}" == *-SNAPSHOT ]]; then
+            isSnapshotVersion=true
+            echo "isSnapshotVersion=true" >> $GITHUB_OUTPUT
+          else
+            isSnapshotVersion=false
+            echo "isSnapshotVersion=false" >> $GITHUB_OUTPUT
+          fi
+          BUILD_VERSION="${PROJECT_VERSION}"
+          if [[    "${{ github.ref }}" == "refs/heads/preview"
+                && "${isSnapshotVersion}" == "true" ]]; then
+            VERSION_INSERT=preview
+          elif [[    "${{ github.ref }}" != "refs/heads/master"
+                  && "${{ github.ref }}" != "refs/heads/main_mavenplugins"
+                  && "${isSnapshotVersion}" == "true" ]]; then
+            # Use short SHA as version insert
+            VERSION_INSERT=${SHA_SHORT}
+          fi
+          if [[ -n "${VERSION_INSERT}" ]]; then
+            # 1.0.0-SNAPSHOT -> 1.0.0-${VERSION_INSERT}-SNAPSHOT
+            BUILD_VERSION="${PROJECT_VERSION%*-SNAPSHOT}-${VERSION_INSERT}-SNAPSHOT"
+          fi
+          echo "PROJECT_VERSION is: '${PROJECT_VERSION}'"
+          echo "BUILD_VERSION is:   '${BUILD_VERSION}'"
+          echo "originalProjectVersion=${PROJECT_VERSION}" >> $GITHUB_OUTPUT
+          echo "currentBuildVersion=${BUILD_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Log project version
+        run: |
+          echo "Group ID:        '${{ env.groupId }}'"
+          echo "Project version: '${{ steps.version.outputs.originalProjectVersion }}'"
+          echo "Build version:   '${{ steps.version.outputs.currentBuildVersion }}'"
+          echo "Is Snapshot:     ${{ steps.version.outputs.isSnapshotVersion }}"
+          echo "${{ steps.version.outputs.currentBuildVersion }}" >VERSION
+          echo "VERSION file:    '$(cat VERSION)'"
+
+      - name: Abort if no SNAPSHOT version
+        if: ${{ steps.version.outputs.isSnapshotVersion != 'true' }}
+        run: |
+          echo "ERROR: VERSION is no SNAPSHOT!"
+          exit 1
+
+      - name: Setup Java
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          java-version: 21
+          distribution: zulu
+          cache: gradle
+
+      - name: Build
+        id: build
+        shell: bash
+        run: |
+          if [[ ! "$(cat VERSION)" == *-SNAPSHOT ]]; then
+            echo "ERROR: VERSION is no SNAPSHOT!"
+            exit 1
+          fi
+          set +e
+          ./gradlew build -S -Pgroup=${{ env.groupId }}
+          if [[ "$?" == "0" ]]; then
+            echo "isOk=true" >> $GITHUB_OUTPUT
+            echo "Build SUCCEEDED"
+          else
+            echo "isOk=false" >> $GITHUB_OUTPUT
+            echo "Build FAILED"
+          fi
+          set -e
+
+      - name: Deploy Snapshot
+        id: deploy
+        if: ${{    steps.version.outputs.isSnapshotVersion == 'true'
+                && steps.build.outputs.isOk == 'true'
+                && github.event_name != 'pull_request'
+             }}
+        env:
+          #JRELEASER_GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_PASSPHRASE }}
+          #JRELEASER_GPG_SECRET_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
+          #JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.OSSRH_GPG_PUBLIC_KEY }}
+          JRELEASER_MAVENCENTRAL_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          JRELEASER_MAVENCENTRAL_TOKEN: ${{ secrets.OSSRH_PASSWORD }}
+        run: |
+          echo "Deploy to Maven Central Snapshots ..."
+          set +e
+          ./gradlew publish -S -Pgroup=${{ env.groupId }}
+          if [[ "$?" == "0" ]]; then
+            echo "isOk=true" >> $GITHUB_OUTPUT
+            echo "Deploy SUCCEEDED"
+          else 
+            echo "isOk=false" >> $GITHUB_OUTPUT
+            echo "Deploy FAILED"
+          fi
+          set -e
+
+      - name: Attach build
+        #if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: build
+          path: |
+            build
+
+      - name: Fail job if build or deploy failed
+        # Note: deploy job is optional - so we check explicitely for 'false'!
+        if: ${{    steps.build.outputs.isOk != 'true'
+                || steps.deploy.outputs.isOk == 'false'
+             }}
+        shell: bash
+        run: |
+          echo "Enforce job failure since build or deploy step failed."
+          exit 1
