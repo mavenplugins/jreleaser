@@ -108,8 +108,8 @@ enforce {
         r.exclude("org.graalvm.sdk:nativeimage-libgraal:$graalVersion")
         r.exclude("org.graalvm.espresso:espresso-svm:$graalVersion")
         r.exclude("org.kordamp.gradle:base-gradle-plugin:$kordampPluginVersion")
-        r.exclude("org.jreleaser:jreleaser-graalvm-sdk")
-        r.exclude("org.jreleaser:jreleaser-test-support")
+        r.exclude("$group:jreleaser-graalvm-sdk")
+        r.exclude("$group:jreleaser-test-support")
         // check & tests
         r.exclude("org.junit-pioneer:junit-pioneer:$junitPioneerVersion")
         r.exclude("org.junit.jupiter:junit-jupiter:$junit5Version")
